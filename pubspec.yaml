@@ -1,0 +1,31 @@
+name: awesome_notes
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  font_awesome_flutter: ^10.8.0
+  font_awesome_icon_class: ^0.0.6
+  flutter_quill: ^11.4.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+      - family: Poppins
+        fonts:
+          - asset: assets/fonts/poppins/Poppins-Regular.ttf
+          - asset: assets/fonts/poppins/Poppins-Italic.ttf
+            style: italic
+          - asset: assets/fonts/poppins/Poppins-Bold.ttf
+            weight: 700
+     
