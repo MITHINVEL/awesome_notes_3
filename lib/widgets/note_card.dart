@@ -1,14 +1,16 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:awesome_notes/core/constant.dart';
+import 'package:awesome_notes/models/note.dart';
 import 'package:awesome_notes/pages/new_or_edit_note_page.dart';
 import 'package:flutter/material.dart';
 class Notecard extends StatelessWidget {
   const Notecard({
+    required this.note,
     required this.isInGrid,
     super.key,
   });
-
+   final Note note;
   final bool isInGrid;
 
   @override

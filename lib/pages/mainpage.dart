@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_unnecessary_containers, non_constant_identifier_names
+import 'package:awesome_notes/change_notifers/notes_provider.dart';
 import 'package:awesome_notes/core/constant.dart';
+import 'package:awesome_notes/models/note.dart';
 import 'package:awesome_notes/pages/new_or_edit_note_page.dart';
 
 import 'package:awesome_notes/widgets/note_icon_button_outlined.dart';
@@ -9,6 +11,7 @@ import 'package:awesome_notes/widgets/note_gride.dart';
 import 'package:awesome_notes/widgets/note_list.dart';
 import 'package:awesome_notes/widgets/note_search.dart';
 import 'package:awesome_notes/widgets/note_floatbutton.dart';
+import 'package:provider/provider.dart';
  // Ensure this is the correct path
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -31,6 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+      
         title: const Text(
           "Awesome Notes 📒",
           style: TextStyle(
@@ -55,99 +59,120 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },),
 
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            search_inputbox(),
-            SizedBox(height: 15,),
-      
-         
-                  Row(
-                    children: [
-                      IconButton( icon:isDescending
-                       ? FaIcon(FontAwesomeIcons.arrowDown)
-                       : FaIcon(FontAwesomeIcons.arrowUp),
-            onPressed: () {
-              isDescending = !isDescending;
-            },
-                   
-            padding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
-            constraints: const BoxConstraints(),
-            style: IconButton.styleFrom(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      body: Consumer<NotesProvider>(
+        builder: (context, notesProvider, child) {
+          final List<Note> notes= notesProvider.notes;
+          return notes.isEmpty? Column(children: [
+            Image.asset(
+              'assets/images/create_note_image.png',
+              width: MediaQuery.of(context).size.width * 0.75,
             ),
-            iconSize: 25,
-            color: gray700,
-                      ),
-                      const SizedBox(width: 10),
-                      DropdownButton<String>(
-            value: dropdownValue,
-                      icon: Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: FaIcon(FontAwesomeIcons.arrowDownWideShort,size: 18,
-            color: gray700,),
-                      ),
-                      underline: SizedBox.shrink(),          
-            isDense: true,
-            items: dropdownOptions
-                .map((e) => DropdownMenuItem(
-                
-                      value: e,
-                      child:Row(
-                        children: [
-                          Text(e),
-                          if (e == dropdownValue)
-                            FaIcon(FontAwesomeIcons.check,size: 18,
-                              color: primary,)
-                       
-                     ]
-                     )
-                    )
-                    )
-                .toList(),
-            selectedItemBuilder: (context) =>
-                dropdownOptions.map((e) => Text(e)).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                dropdownValue = newValue.toString();
-                
-              });
-            },
-                      ),
-                      const Spacer(),
-                      IconButton(
-            icon: FaIcon(
-              isgrid
-                  ? FontAwesomeIcons.tableCellsLarge
-                  : FontAwesomeIcons.bars,
-              size: 30,
+            Text("You have no notes yet!\nStart Creating by pressing the + button below!",
+            style: TextStyle(
+              fontSize: 20,
+              fontFamily: 'poppins',
+              fontWeight: FontWeight.bold,
+             ),
+            textAlign: TextAlign.center,
+            ),
+          ]
+          ): Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              search_inputbox(),
+              SizedBox(height: 15,),
+        
+           
+                    Row(
+                      children: [
+                        IconButton( icon:isDescending
+                         ? FaIcon(FontAwesomeIcons.arrowDown)
+                         : FaIcon(FontAwesomeIcons.arrowUp),
+              onPressed: () {
+                isDescending = !isDescending;
+              },
+                     
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints(),
+              style: IconButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              iconSize: 25,
               color: gray700,
-            ),
-            onPressed: () {
-              setState(() {
-                isgrid = !isgrid;
-              });
-            },
-            padding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
-            constraints: const BoxConstraints(),
-            style: IconButton.styleFrom(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            iconSize: 25,
-            color: gray700,
-                      ),
-                    ],
-                  ),
-                   SizedBox(height: 15,),
-          Expanded(
-            child: isgrid ? notegrid() :NotesList(),
-          )
-          ],
-        ),
-      ),
+                        ),
+                        const SizedBox(width: 10),
+                        DropdownButton<String>(
+              value: dropdownValue,
+                        icon: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: FaIcon(FontAwesomeIcons.arrowDownWideShort,size: 18,
+              color: gray700,),
+                        ),
+                        underline: SizedBox.shrink(),          
+              isDense: true,
+              items: dropdownOptions
+                  .map((e) => DropdownMenuItem(
+                  
+                        value: e,
+                        child:Row(
+                          children: [
+                            Text(e),
+                            if (e == dropdownValue)
+                              FaIcon(FontAwesomeIcons.check,size: 18,
+                                color: primary,)
+                         
+                       ]
+                       )
+                      )
+                      )
+                  .toList(),
+              selectedItemBuilder: (context) =>
+                  dropdownOptions.map((e) => Text(e)).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  dropdownValue = newValue.toString();
+                  
+                });
+              },
+                        ),
+                        const Spacer(),
+                        IconButton(
+              icon: FaIcon(
+                isgrid
+                    ? FontAwesomeIcons.tableCellsLarge
+                    : FontAwesomeIcons.bars,
+                size: 30,
+                color: gray700,
+              ),
+              onPressed: () {
+                setState(() {
+                  isgrid = !isgrid;
+                });
+              },
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints(),
+              style: IconButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              iconSize: 25,
+              color: gray700,
+                        ),
+                      ],
+                    ),
+                     SizedBox(height: 15,),
+            Expanded(
+              child: isgrid ? NoteGrid(notes: notes) 
+              :NotesList(notes: notes,),
+            )
+            ],
+          ),
+        
+        );
+        }
+      )
     );
   
 }
