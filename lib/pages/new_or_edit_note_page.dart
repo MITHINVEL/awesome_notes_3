@@ -1,13 +1,16 @@
 // ignore_for_file: depend_on_referenced_packages, annotate_overrides
 
+import 'package:awesome_notes/change_notifers/new_note_controler.dart';
 import 'package:awesome_notes/core/constant.dart';
+import 'package:awesome_notes/widgets/NoteTag.dart';
 import 'package:awesome_notes/widgets/Note_toolbar.dart';
+import 'package:awesome_notes/widgets/dialog_card.dart';
+import 'package:awesome_notes/widgets/new_tag_diolog.dart';
 import 'package:awesome_notes/widgets/note_icon_button_outlined.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart' show FontAwesomeIcons;
+import 'package:provider/provider.dart';
 
 class NewOrEditNotePage extends StatefulWidget {
   const NewOrEditNotePage({
@@ -23,25 +26,25 @@ class NewOrEditNotePage extends StatefulWidget {
 
 class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
   QuillController _controller = QuillController.basic();
+  late final NewNoteControler newNoteControler; 
   late final FocusNode focusNode;
-  late bool readOnly;
+ 
   @override
   void initState() {
     super.initState();
-  
-    _controller = QuillController(
-      document: Document(),
-      selection: const TextSelection.collapsed(offset: 0),
-    
-    );
-     focusNode = FocusNode();
-     if (widget.isnewnote){
-       focusNode.requestFocus();
-       readOnly = false;
-     }
-     else{
-      readOnly=true;
-     }
+    newNoteControler = context.read<NewNoteControler>();
+    _controller = QuillController.basic()..addListener((){
+        newNoteControler.content = _controller.document;
+    });
+    focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.isnewnote) {
+        focusNode.requestFocus();
+        newNoteControler.readOnly = false;
+      } else {
+        newNoteControler.readOnly = true;
+      }
+    });
   }
   @override
   void dispose() {
@@ -50,71 +53,80 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Awesome Notes',
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        FlutterQuillLocalizations.delegate,
-      ],
-      home: Scaffold(
-        appBar: AppBar(
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: NoteIconButtonOutlined(
-              icon: FontAwesomeIcons.chevronLeft,
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: NoteIconButtonOutlined(
+            icon: FontAwesomeIcons.chevronLeft,
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          title: Text(
-            widget.isnewnote
-                ? "New Note"
-                : "Edit Note",
-            
-            style: const TextStyle(
-              fontFamily: 'poppins',
-            ),
+        ),
+        title: Text(
+          widget.isnewnote
+              ? "New Note"
+              : "Edit Note",
+          
+          style: const TextStyle(
+            fontFamily: 'poppins',
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(left: 0),
+        ),
+      
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 0),
+            child: Selector<NewNoteControler, bool>(
+              selector: (context, newNoteControler) => newNoteControler.readOnly,
+              builder: (context, readOnly, child) => Padding(
+                padding: const EdgeInsets.all(8.0),
               child: NoteIconButtonOutlined(
-                icon: readOnly ? FontAwesomeIcons.pen: FontAwesomeIcons.bookOpen, // Changed to IconData
+                icon:  readOnly ? FontAwesomeIcons.pen: FontAwesomeIcons.bookOpen, // Changed to IconData
                 onPressed: () {
-                  setState(() {
-                    readOnly=! readOnly;
-                  if(readOnly){
+               
+                    newNoteControler.readOnly=!readOnly;
+                   
+                  if(newNoteControler.readOnly){
                     FocusScope.of(context).unfocus();
                   }
                   else{
                     focusNode.requestFocus();
                   } 
-                  });
+                  
                 
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: NoteIconButtonOutlined(
-                icon: FontAwesomeIcons.check, // Changed to IconData
-                onPressed: () {
-                  // Add your onPressed logic here
-                },
+          ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Selector<NewNoteControler, bool>(
+              selector: (context, controller) => controller.readOnly,
+              builder: (context, readOnly, child) => NoteIconButtonOutlined(
+                icon: FontAwesomeIcons.check,
+                onPressed: !readOnly
+                    ? () {
+                        newNoteControler.saveNote(context);
+                        Navigator.of(context).pop();
+                      }
+                    : () {}, // Provide a non-null (but empty) function when disabled
               ),
             ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-          child: Column(
-            children: [
-              TextField(
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        child: Column(
+          children: [
+            Selector<NewNoteControler,bool>(
+              selector: (context, controller) => controller.readOnly,
+              builder: (context, read, child) =>
+               TextField(
                 style: TextStyle(
                     fontSize: 30,
                     fontFamily: 'poppins',
@@ -124,112 +136,154 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
                     hintText: "Title here", 
                     border: InputBorder.none
                     ),
-                     canRequestFocus: !readOnly,
+                     canRequestFocus: !read,
+                     onChanged: (value) => newNoteControler.title = value,
+                    enabled: !read,
               ),
-              if (!widget.isnewnote)
-              ...[
-              Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Last modified',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: gray500),
-                    ),
+            ),
+            if (!widget.isnewnote)
+            ...[
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    'Last modified',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: gray500),
                   ),
-                  Expanded(
-                    flex: 5,
-                    child: Text(
-                      '07 Aiprel 2025, 03:45 PM',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                           fontSize: 16,
-                           color: gray900),),
-                    ),
-                  
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                      flex: 3,
-                      child: Text('Created',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, color: gray500))),
-                  Expanded(
-                    flex: 5,
-                    child: Text(
-                      '05 Aiprel 2025, 03:45 PM',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                           fontSize: 16,
-                           color: gray900),
-                       
-                    ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: Text(
+                    '07 Aiprel 2025, 03:45 PM',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                         fontSize: 16,
+                         color: gray900),),
                   ),
-                ],
-              ),
+                
               ],
-              Row(
-                children: [
-                  Expanded(
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                Expanded(
                     flex: 3,
-                    child: Row(
-                      children: [
-                        Text('Tags',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, color: gray500)),
-                        IconButton(
-                            icon: Icon(FontAwesomeIcons.circlePlus),
-                            onPressed: () {})
-                      ],
-                    ),
+                    child: Text('Created',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: gray500))),
+                Expanded(
+                  flex: 5,
+                  child: Text(
+                    '05 Aiprel 2025, 03:45 PM',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                         fontSize: 16,
+                         color: gray900),
+                      
                   ),
-                  Expanded(
-                      flex: 5,
-                      child: Text(
+                ),
+              ],
+            ),
+            ],
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      Text('Tags',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: gray500,
+                              fontSize: 20)),
+                      IconButton(
+                          icon: Icon(FontAwesomeIcons.circlePlus),
+                          onPressed: () async{
+                           final tag= await showDialog<String?>(
+                              context: context,
+                              builder: (context) => diologcard(child: NewTagDiolog(),),
+                            );
+                      if (tag != null ) {
+                            newNoteControler.addTag(tag);
+                          }
+                        }
+                          )
+                    ],
+                  ),
+                ),
+                Expanded(
+                    flex: 5,
+                    child: Selector<NewNoteControler,List<String>>(
+                      selector: (_,newNoteControler) => newNoteControler.tags,
+                      builder: (_, tags, __) => tags.isEmpty ? 
+                      Text(
                         'No tags added',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                              fontSize: 16,
-                             color: gray900),),
-                      )
-                ],
-              ),
-              
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(
-                  color: gray500,
-                  thickness: 2,
-                ),
-              ),
-             if (!readOnly) Padding(
-                padding: const EdgeInsets.only(bottom: 15.0),
-                child: NoteToolbar(controller: _controller),
-              ),
-              Expanded(
-                child: QuillEditor.basic(
-                  controller: _controller,
-                  config:  QuillEditorConfig(
-                      placeholder: 'Note here...', 
-                      expands: true,
-                     checkBoxReadOnly: readOnly
-                     // Corrected to use 'readOnly' instead of 'enabled'
-                      ),
-                      focusNode: focusNode,
-                ),
-              )
-
-            ],
+                             color: gray900),
+                             ):SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                               child: Row(
+                                children: [
+                                  ...List.generate(tags.length,
+                                   (index)=>NoteTag(label:tags[index],onClosed: (){
+                                    newNoteControler.removeTag(index);
+                                   },))
+                                ],
+                               ),
+                             )
+                    ),
+                    )
+              ],
+            ),
+            
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Divider(
+              color: gray500,
+              thickness: 2,
+            ),
           ),
-        ),
-      ),
-    );
-  }
+          Selector<NewNoteControler, bool>(
+            selector: (context, controller) => controller.readOnly,
+            builder: (context, readOnly, child) => 
+              !readOnly
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0),
+                    child: NoteToolbar(controller: _controller),
+                  )
+                : SizedBox.shrink(),
+          ),
+          Expanded(
+            child: Selector<NewNoteControler,bool>(
+              selector: (context, controller) => controller.readOnly, 
+              builder: (context, readOnly, child) =>
+               Column(
+                children: [
+                  Expanded(
+                    child: QuillEditor.basic(
+                      controller: _controller,
+                      config:  QuillEditorConfig(
+                          placeholder: 'Note here...', 
+                          expands: true,
+                         checkBoxReadOnly: readOnly
+                         // Corrected to use 'readOnly' instead of 'enabled'
+                          ),
+                          focusNode: focusNode,
+                  ),
+                ),
+              ],
+            ),
+            )
+          ),
+        ], // <-- This closes the children: [ of the Column
+      ), // <-- This closes the Column
+    ), // <-- This closes the Padding
+  ); // <-- This closes the Scaffold
 }
 
+}

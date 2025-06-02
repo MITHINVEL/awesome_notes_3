@@ -37,7 +37,7 @@ class NoteToolbar extends StatelessWidget {
           config: QuillSimpleToolbarConfig(
             multiRowsDisplay: false,
             showFontFamily: false,
-            showFontSize: false,
+           
             showSubscript: false,
             showSuperscript: false,
             showSmallButton: false,
@@ -50,59 +50,70 @@ class NoteToolbar extends StatelessWidget {
             showCodeBlock: false,
             showQuote: false,
             showIndent: false,
-            showLink: false,
-            buttonOptions: QuillSimpleToolbarButtonOptions(
-              undoHistory: QuillToolbarHistoryButtonOptions(
-                iconData: FontAwesomeIcons.arrowRotateLeft,
-                iconSize: 15,
-              ),
-              redoHistory: QuillToolbarHistoryButtonOptions(
-                iconData: FontAwesomeIcons.arrowRotateRight,
-                iconSize: 15,
-              ),
-              bold: QuillToolbarToggleStyleButtonOptions(
-                iconData: FontAwesomeIcons.bold,
-                iconSize: 15,
-              ),
-              italic: QuillToolbarToggleStyleButtonOptions(
-                iconData: FontAwesomeIcons.italic,
-                iconSize: 15,
-              ),
-              underLine: QuillToolbarToggleStyleButtonOptions(
-                iconData: FontAwesomeIcons.underline,
-                iconSize: 15,
-              ),
-              strikeThrough: QuillToolbarToggleStyleButtonOptions(
-                iconData: FontAwesomeIcons.strikethrough,
-                iconSize: 15,
-              ),
-              color: QuillToolbarColorButtonOptions(
-                iconData: FontAwesomeIcons.palette,
-                iconSize: 15,
-              ),
-              backgroundColor: QuillToolbarColorButtonOptions(
-                iconData: FontAwesomeIcons.fillDrip,
-                iconSize: 15,
-              ),
-              clearFormat: QuillToolbarClearFormatButtonOptions(
-                iconData: FontAwesomeIcons.textSlash,
-                iconSize: 15,
-              ),
-              listNumbers: QuillToolbarToggleStyleButtonOptions(
-                iconData: FontAwesomeIcons.listOl,
-                iconSize: 15,
-              ),
-              listBullets: QuillToolbarToggleStyleButtonOptions(
-                iconData: FontAwesomeIcons.listUl,
-                iconSize: 15,
-              ),
-              search: QuillToolbarSearchButtonOptions(
-                iconData: FontAwesomeIcons.magnifyingGlass,
-                iconSize: 15,
-              ),
-            ),
-          ),
+showLink: false,
+// ...existing code...
+buttonOptions: QuillSimpleToolbarButtonOptions(
+  fontSize: QuillToolbarFontSizeButtonOptions(
+    iconSize: 15,
+  ),
+  undoHistory: QuillToolbarHistoryButtonOptions(
+    iconData: FontAwesomeIcons.arrowRotateLeft,
+    iconSize: 15,
+  ),
+  redoHistory: QuillToolbarHistoryButtonOptions(
+    iconData: FontAwesomeIcons.arrowRotateRight,
+    iconSize: 15,
+  ),
+  bold: QuillToolbarToggleStyleButtonOptions(
+    iconData: FontAwesomeIcons.bold,
+    iconSize: 15,
+  ),
+  italic: QuillToolbarToggleStyleButtonOptions(
+    iconData: FontAwesomeIcons.italic,
+    iconSize: 15,
+  ),
+  underLine: QuillToolbarToggleStyleButtonOptions(
+    iconData: FontAwesomeIcons.underline,
+    iconSize: 15,
+  ),
+  strikeThrough: QuillToolbarToggleStyleButtonOptions(
+    iconData: FontAwesomeIcons.strikethrough,
+    iconSize: 15,
+  ),
+  color: QuillToolbarColorButtonOptions(
+    iconData: FontAwesomeIcons.palette,
+    iconSize: 15,
+  ),
+  backgroundColor: QuillToolbarColorButtonOptions(
+    iconData: FontAwesomeIcons.fillDrip,
+    iconSize: 15,
+  ),
+  clearFormat: QuillToolbarClearFormatButtonOptions(
+    iconData: FontAwesomeIcons.textSlash,
+    iconSize: 15,
+  ),
+  listNumbers: QuillToolbarToggleStyleButtonOptions(
+    iconData: FontAwesomeIcons.listOl,
+    iconSize: 15,
+  ),
+  listBullets: QuillToolbarToggleStyleButtonOptions(
+    iconData: FontAwesomeIcons.listUl,
+    iconSize: 15,
+  ),
+  search: QuillToolbarSearchButtonOptions(
+    iconData: FontAwesomeIcons.magnifyingGlass,
+    iconSize: 15,
+  ),
+        fontFamily: QuillToolbarFontFamilyButtonOptions(
+        iconData: FontAwesomeIcons.font,
+        iconSize: 15,
         ),
+          ),
+           showFontSize: true,
+          ),
+       
+        ),
+        
       ),
     );
   }

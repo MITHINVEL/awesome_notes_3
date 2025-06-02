@@ -3,7 +3,9 @@
 import 'package:awesome_notes/core/constant.dart';
 import 'package:awesome_notes/models/note.dart';
 import 'package:awesome_notes/pages/new_or_edit_note_page.dart';
+import 'package:awesome_notes/widgets/NoteTag.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 class Notecard extends StatelessWidget {
   const Notecard({
     required this.note,
@@ -36,10 +38,11 @@ class Notecard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
+              if(note.title != null) ...[
               Align(
                 alignment: Alignment.topLeft,
-                child: const Text(
-                  "This is going to be a title",
+                child:  Text(
+                  note.title!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -50,7 +53,8 @@ class Notecard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 2),],
+              if(note.tags != null) ...[
               Align(
                 alignment: Alignment.topLeft,
                 child: SingleChildScrollView(
@@ -58,46 +62,31 @@ class Notecard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: List.generate(
-                      3,
-                      (index) => Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: const Color.fromARGB(106, 189, 184, 184),
-                        ),
-                        margin: const EdgeInsets.only(right: 8),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: const Text(
-                            "  First chip  ",
-                            style: TextStyle(
-                              color: gray700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
+                      note.tags!.length,
+                      (index) => NoteTag(label: note.tags![index],),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
-              if (isInGrid)
+              const SizedBox(height: 4),],
+              if(note.content != null) ...[
+            isInGrid ?
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      "Some Content",
+                      note.content is String ? note.content : note.content.toPlainText(),
                       style: TextStyle(
                         color: gray700,
                       ),
                     ),
                   ],
                 )
-              else
+           :
                 Align(
                   alignment: Alignment.topLeft,
-                  child: const Text(
-                    "Some Content",
+                  child: Text(
+              note.content is String ? note.content : note.content.toPlainText(),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -112,9 +101,9 @@ class Notecard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "02 Nov, 2023",
-                        style: TextStyle(
+                      Text(
+                        DateFormat('dd MMM, y').format(DateTime.fromMicrosecondsSinceEpoch(note.dateCreated)),
+                        style: const TextStyle(
                           color: gray700,
                           fontSize: 15,
                         ),
@@ -127,10 +116,11 @@ class Notecard extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            ]],
           ),
         ),
       ),
     );
   }
 }
+

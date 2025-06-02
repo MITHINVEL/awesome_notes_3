@@ -1,8 +1,10 @@
 // ignore_for_file: avoid_unnecessary_containers, non_constant_identifier_names
+import 'package:awesome_notes/change_notifers/new_note_controler.dart';
 import 'package:awesome_notes/change_notifers/notes_provider.dart';
 import 'package:awesome_notes/core/constant.dart';
 import 'package:awesome_notes/models/note.dart';
 import 'package:awesome_notes/pages/new_or_edit_note_page.dart';
+import 'package:awesome_notes/widgets/no_notes.dart';
 
 import 'package:awesome_notes/widgets/note_icon_button_outlined.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-          builder: (context) =>  NewOrEditNotePage(isnewnote: true),
+          builder: (context) =>  ChangeNotifierProvider(
+            create:(context)=>NewNoteControler(),
+            child: NewOrEditNotePage(isnewnote: true)),
           ),
         );
       },),
@@ -62,21 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Consumer<NotesProvider>(
         builder: (context, notesProvider, child) {
           final List<Note> notes= notesProvider.notes;
-          return notes.isEmpty? Column(children: [
-            Image.asset(
-              'assets/images/create_note_image.png',
-              width: MediaQuery.of(context).size.width * 0.75,
-            ),
-            Text("You have no notes yet!\nStart Creating by pressing the + button below!",
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: 'poppins',
-              fontWeight: FontWeight.bold,
-             ),
-            textAlign: TextAlign.center,
-            ),
-          ]
-          ): Padding(
+          return notes.isEmpty? Nonots(): Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -181,4 +171,5 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 }
+
 

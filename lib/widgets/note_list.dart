@@ -1,6 +1,7 @@
 import 'package:awesome_notes/models/note.dart';
 import 'package:flutter/material.dart';
 import 'package:awesome_notes/widgets/note_card.dart';
+
 class NotesList extends StatefulWidget {
   const NotesList({
     required this.notes,
@@ -24,7 +25,8 @@ class _NotesListState extends State<NotesList> {
             itemBuilder: (context, index) {
               return Notecard(
                 isInGrid: false,
-                 note: widget.notes[index]);
+                note: widget.notes[index],
+              );
             },
             separatorBuilder: (context, index) => SizedBox(
               height: 4,
