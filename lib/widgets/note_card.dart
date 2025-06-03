@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:awesome_notes/change_notifers/new_note_controler.dart';
+import 'package:awesome_notes/change_notifers/notes_provider.dart';
 import 'package:awesome_notes/core/constant.dart';
 import 'package:awesome_notes/models/note.dart';
 import 'package:awesome_notes/pages/new_or_edit_note_page.dart';
@@ -21,15 +22,23 @@ class Notecard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider<NewNoteControler>(
-            create: (_) => NewNoteControler(),
-            child: const NewOrEditNotePage(isnewnote: false),
+      onTap: () async {
+        // Open edit page with note data, wait for result
+        final updatedNote = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChangeNotifierProvider<NewNoteControler>(
+              create: (_) => NewNoteControler.fromNote(note),
+              child: NewOrEditNotePage(isnewnote: false),
+            ),
           ),
-        ),
-      ),
+        );
+        // If updatedNote is returned, update in provider
+        if (updatedNote is Note) {
+          final notesProvider = context.read<NotesProvider>();
+          notesProvider.updateNote(updatedNote);
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           color: white,
@@ -108,6 +117,7 @@ class Notecard extends StatelessWidget {
                             ),
                           ),
                         ),
+                        
                   Spacer(),
                   Align(
                     alignment: Alignment.bottomCenter,
@@ -117,15 +127,17 @@ class Notecard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            DateFormat('dd MMM, y').format(DateTime
-                                .fromMicrosecondsSinceEpoch(note.dateCreated)),
-                            style: const TextStyle(
-                              color: gray700,
-                              fontSize: 15,
-                            ),
+                            DateFormat('dd MMM y').format(DateTime.fromMillisecondsSinceEpoch(note.dateCreated)),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: gray900),
                           ),
+                          SizedBox(width: 12), // Add spacing between date and delete icon
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              context.read<NotesProvider>().deleteNote(note);
+                            },
                             icon: const Icon(Icons.delete),
                           ),
                         ],

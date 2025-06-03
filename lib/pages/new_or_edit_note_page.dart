@@ -1,6 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages, annotate_overrides
 
 import 'package:awesome_notes/change_notifers/new_note_controler.dart';
+import 'package:awesome_notes/change_notifers/notes_provider.dart';
 import 'package:awesome_notes/core/constant.dart';
 import 'package:awesome_notes/widgets/NoteTag.dart';
 import 'package:awesome_notes/widgets/Note_toolbar.dart';
@@ -71,12 +72,10 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
           widget.isnewnote
               ? "New Note"
               : "Edit Note",
-          
           style: const TextStyle(
             fontFamily: 'poppins',
           ),
         ),
-      
         actions: [
           Padding(
             padding: const EdgeInsets.only(left: 0),
@@ -103,18 +102,28 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
             ),
           ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Selector<NewNoteControler, bool>(
-              selector: (context, controller) => controller.readOnly,
-              builder: (context, readOnly, child) => NoteIconButtonOutlined(
-                icon: FontAwesomeIcons.check,
-                onPressed: !readOnly
-                    ? () {
-                        newNoteControler.saveNote(context);
-                        Navigator.of(context).pop();
-                      }
-                    : () {}, // Provide a non-null (but empty) function when disabled
+          Selector<NewNoteControler,bool>(
+            selector: (context, newNoteControler) => newNoteControler.canSaveNote(),
+            builder: (context, canSave, child) => 
+              Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Selector<NewNoteControler, bool>(
+                selector: (context, controller) => controller.readOnly,
+                builder: (context, readOnly, child) => NoteIconButtonOutlined(
+                  icon: FontAwesomeIcons.check,
+                  onPressed: !readOnly && canSave
+                      ? () {
+                          if (widget.isnewnote) {
+                            newNoteControler.saveNote(context);
+                            Navigator.pop(context);
+                          } else {
+                            final note = newNoteControler.getNoteForEdit();
+                            context.read<NotesProvider>().updateNote(note);
+                            Navigator.pop(context, note);
+                          }
+                        }
+                      : null,
+                ),
               ),
             ),
           ),
@@ -148,22 +157,20 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
               children: [
                 Expanded(
                   flex: 3,
-                  child: Text(
-                    'Last modified',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: gray500),
-                  ),
+                  child: Text('Last modified',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: gray500)),
                 ),
                 Expanded(
                   flex: 5,
                   child: Text(
-                    DateFormat('dd MMM y, hh:mm a').format(DateTime.now()),
+                    DateFormat('dd MMM y, hh:mm a').format(
+                      DateTime.fromMillisecondsSinceEpoch(newNoteControler.dateModified)),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                          fontSize: 16,
                          color: gray900),),
-                  ),
-                
+                ),
               ],
             ),
             SizedBox(
@@ -179,13 +186,11 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
                 Expanded(
                   flex: 5,
                   child: Text(
-                    '05 Aiprel 2025, 03:45 PM',
+                    DateFormat('dd MMM y, hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(newNoteControler.dateCreated)),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                          fontSize: 16,
-                         color: gray900),
-                      
-                  ),
+                         color: gray900),),
                 ),
               ],
             ),

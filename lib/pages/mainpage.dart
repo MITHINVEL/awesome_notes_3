@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late String dropdownValue = dropdownOptions.first;
  bool isDescending =  true;
  bool isgrid = true;
+ String searchQuery = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,11 +67,21 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Consumer<NotesProvider>(
         builder: (context, notesProvider, child) {
           final List<Note> notes= notesProvider.notes;
+          // Filter notes by searchQuery (case-insensitive, title contains query)
+          final List<Note> filteredNotes = searchQuery.isEmpty
+              ? notes
+              : notes.where((note) => note.title.toLowerCase().contains(searchQuery.toLowerCase())).toList();
           return notes.isEmpty? Nonots(): Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              search_inputbox(),
+              search_inputbox(
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                },
+              ),
               SizedBox(height: 15,),
         
            
@@ -154,8 +165,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                      SizedBox(height: 15,),
             Expanded(
-              child: isgrid ? NoteGrid(notes: notes) 
-              :NotesList(notes: notes,),
+              child: isgrid ? NoteGrid(notes: filteredNotes) 
+              :NotesList(notes: filteredNotes,),
             )
             ],
           ),
