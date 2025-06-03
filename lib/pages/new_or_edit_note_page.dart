@@ -10,6 +10,7 @@ import 'package:awesome_notes/widgets/note_icon_button_outlined.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart' show FontAwesomeIcons;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class NewOrEditNotePage extends StatefulWidget {
@@ -156,7 +157,7 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
                 Expanded(
                   flex: 5,
                   child: Text(
-                    '07 Aiprel 2025, 03:45 PM',
+                    DateFormat('dd MMM y, hh:mm a').format(DateTime.now()),
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                          fontSize: 16,
